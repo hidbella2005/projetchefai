@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord — ChefAI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index:9999;"></div>
+
+    <!-- ====== SIDEBAR ====== -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-brand"><i class="bi bi-fire"></i> ChefAI</div>
+        <ul class="sidebar-nav">
+            <li><a class="sidebar-link active" data-view="dashboard" href="#"><i class="bi bi-grid-1x2-fill"></i> Tableau de bord</a></li>
+            <li><a class="sidebar-link" data-view="generate" href="#"><i class="bi bi-magic"></i> Générateur</a></li>
+            <li><a class="sidebar-link" data-view="recipes" href="#"><i class="bi bi-book"></i> Mes Recettes</a></li>
+            <li><a class="sidebar-link" data-view="history" href="#"><i class="bi bi-clock-history"></i> Historique</a></li>
+            <li><a class="sidebar-link" data-view="settings" href="#"><i class="bi bi-gear"></i> Paramètres</a></li>
+        </ul>
+        <div class="sidebar-footer">&copy; 2026 ChefAI</div>
+    </nav>
+
+    <!-- ====== NAVBAR ====== -->
+    <header class="navbar-main">
+        <div class="navbar-left">
+            <button class="navbar-toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+            <span class="navbar-title" id="navTitle">Tableau de bord</span>
+        </div>
+        <div class="navbar-right">
+            <button class="dark-mode-btn" id="darkModeToggle" title="Basculer le mode sombre"><i class="bi bi-moon-fill"></i></button>
+            <div class="dropdown">
+                <button class="user-avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="user-initials" id="userInitials">U</span>
+                    <img id="userAvatar" src="" alt="" style="display:none;">
+                    <span class="uname d-none d-sm-inline" id="userDisplayName">User</span>
+                    <i class="bi bi-chevron-down" style="font-size:0.7rem;"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" data-view="settings"><i class="bi bi-person me-2"></i>Profil</a></li>
+                    <li><a class="dropdown-item" href="#" data-view="settings"><i class="bi bi-gear me-2"></i>Paramètres</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- ====== MAIN CONTENT ====== -->
+    <main class="dash-main">
+
+        <!-- == DASHBOARD HOME == -->
+        <section id="view-dashboard" class="view-section d-block">
+            <div class="view-header">
+                <h1 id="dashGreeting">Bonjour, Chef 👋</h1>
+                <p>Voici un aperçu de votre cuisine.</p>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon si-generated"><i class="bi bi-stars"></i></div><div class="stat-info"><h4 id="statGenerated">0</h4><small>Générées</small></div></div></div>
+                <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon si-saved"><i class="bi bi-bookmark-fill"></i></div><div class="stat-info"><h4 id="statSaved">0</h4><small>Sauvegardées</small></div></div></div>
+                <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon si-cuisine"><i class="bi bi-globe2"></i></div><div class="stat-info"><h4 id="statCuisine" style="font-size:1.1rem;">—</h4><small>Top Cuisine</small></div></div></div>
+                <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon si-last"><i class="bi bi-clock"></i></div><div class="stat-info"><h4 id="statLast" style="font-size:0.9rem;">—</h4><small>Récemment</small></div></div></div>
+            </div>
+            <h5 class="fw-bold mb-3">Recettes récentes</h5>
+            <div id="recentRecipesGrid" class="row g-4"></div>
+            <div id="recentEmpty" class="empty-state d-none">
+                <div class="empty-state-icon"><i class="bi bi-egg-fried"></i></div>
+                <h4>Pas encore de recette</h4>
+                <p>Allez au générateur pour en créer une !</p>
+            </div>
+        </section>
+
+        <!-- == GENERATOR == -->
+        <section id="view-generate" class="view-section d-none">
+            <div class="view-header">
+                <h1><i class="bi bi-magic"></i> Générer une recette</h1>
+                <p>Suivez les étapes pour créer le plat parfait.</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Progress -->
+                    <div class="step-progress">
+                        <div class="step-bar"><div class="step-bar-fill" id="stepBarFill" style="width:33%"></div></div>
+                        <div class="step-labels">
+                            <span class="step-label active" data-step="1">1. Ingrédients</span>
+                            <span class="step-label" data-step="2">2. Préférences</span>
+                            <span class="step-label" data-step="3">3. Vérification</span>
+                        </div>
+                    </div>
+                    <div class="gen-card">
+                        <!-- Step 1: Ingredients -->
+                        <div class="gen-step active" id="genStep1">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-basket2-fill text-accent"></i> Quels ingrédients avez-vous ?</h5>
+                            <div class="tag-input-wrap" id="tagInputWrap">
+                                <input type="text" class="tag-input-field" id="tagInput" placeholder="Tapez un ingrédient, puis Entrée ou virgule…">
+                            </div>
+                            <small class="form-text text-muted mt-2 d-block">Appuyez sur Entrée pour ajouter. Cliquez sur × pour retirer.</small>
+                        </div>
+                        <!-- Step 2: Preferences -->
+                        <div class="gen-step" id="genStep2">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-sliders text-accent"></i> Vos préférences</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Cuisine (Origine)</label>
+                                    <select id="genCuisine" class="form-select"><option value="any">Toutes</option><option>Italienne</option><option>Mexicaine</option><option>Japonaise</option><option>Indienne</option><option>Française</option><option>Chinoise</option><option>Méditerranéenne</option><option>Thaïlandaise</option><option>Américaine</option><option>Coréenne</option><option>Marocaine</option></select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Type de repas</label>
+                                    <select id="genMeal" class="form-select"><option value="any">Tous</option><option value="Breakfast">Petit déjeuner</option><option value="Lunch">Déjeuner</option><option value="Dinner">Dîner</option><option value="Snack">Collation</option><option value="Dessert">Dessert</option><option value="Appetizer">Entrée</option></select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Régime alimentaire</label>
+                                    <select id="genDiet" class="form-select"><option value="none">Aucun</option><option value="Vegetarian">Végétarien</option><option value="Vegan">Végane</option><option value="Gluten-Free">Sans gluten</option><option value="Keto">Keto</option><option value="Paleo">Paléo</option><option value="Dairy-Free">Sans lactose</option><option value="Low-Carb">Allégé en glucides</option></select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Difficulté</label>
+                                    <select id="genDifficulty" class="form-select"><option value="Easy">Facile</option><option value="Medium" selected>Moyen</option><option value="Hard">Difficile</option></select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Portions</label>
+                                    <input type="number" id="genServings" class="form-control" value="4" min="1" max="20">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Step 3: Review -->
+                        <div class="gen-step" id="genStep3">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-check2-circle text-accent"></i> Vérification &amp; Génération</h5>
+                            <div class="review-section">
+                                <h6>Ingrédients</h6>
+                                <div class="review-tags" id="reviewIngredients"></div>
+                            </div>
+                            <div class="review-section">
+                                <h6>Préférences</h6>
+                                <div id="reviewPrefs"></div>
+                            </div>
+                        </div>
+                        <!-- Navigation -->
+                        <div class="gen-nav">
+                            <button class="btn btn-outline-secondary" id="genPrevBtn" style="display:none;"><i class="bi bi-chevron-left"></i> Retour</button>
+                            <div class="ms-auto d-flex gap-2">
+                                <button class="btn btn-accent" id="genNextBtn">Suivant <i class="bi bi-chevron-right"></i></button>
+                                <button class="btn btn-accent d-none" id="genSubmitBtn"><i class="bi bi-magic"></i> Générer</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Loading Skeleton -->
+                    <div id="genLoading" class="d-none mt-4"></div>
+                    <!-- Error -->
+                    <div id="genError" class="d-none mt-4"></div>
+                    <!-- Result -->
+                    <div id="genResult" class="mt-4"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- == MY RECIPES == -->
+        <section id="view-recipes" class="view-section d-none">
+            <div class="view-header">
+                <h1><i class="bi bi-book-fill"></i> Mes Recettes</h1>
+                <p>Parcourez, recherchez et gérez votre collection.</p>
+            </div>
+            <div class="search-filter-bar">
+                <div class="search-wrap"><i class="bi bi-search"></i><input type="text" class="search-input" id="recipeSearch" placeholder="Rechercher..."></div>
+                <div class="filter-chips" id="filterChips">
+                    <button class="filter-chip active" data-filter="all">Toutes</button>
+                    <button class="filter-chip" data-filter="saved">Sauvegardées</button>
+                </div>
+                <select class="sort-select" id="sortSelect">
+                    <option value="newest">Plus récentes</option>
+                    <option value="oldest">Plus anciennes</option>
+                    <option value="az">A–Z</option>
+                </select>
+            </div>
+            <div id="recipesGrid" class="row g-4"></div>
+            <div id="recipesEmpty" class="empty-state d-none">
+                <div class="empty-state-icon"><i class="bi bi-book"></i></div>
+                <h4>Aucune recette trouvée</h4>
+                <p>Générez des recettes ou ajustez vos filtres.</p>
+            </div>
+        </section>
+
+        <!-- == HISTORY == -->
+        <section id="view-history" class="view-section d-none">
+            <div class="view-header">
+                <h1><i class="bi bi-clock-history"></i> Historique</h1>
+                <p>Toutes les recettes que vous avez générées.</p>
+            </div>
+            <div id="historyList"></div>
+            <div id="historyEmpty" class="empty-state d-none">
+                <div class="empty-state-icon"><i class="bi bi-hourglass"></i></div>
+                <h4>Aucun historique</h4>
+                <p>Commencez à générer des recettes et elles apparaîtront ici.</p>
+            </div>
+        </section>
+
+        <!-- == SETTINGS == -->
+        <section id="view-settings" class="view-section d-none">
+            <div class="view-header">
+                <h1><i class="bi bi-gear-fill"></i> Paramètres</h1>
+                <p>Gérez votre profil et vos préférences.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="settings-card">
+                        <h5><i class="bi bi-person-fill text-accent"></i> Profil</h5>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nom d'affichage</label>
+                            <input type="text" class="form-control" id="settingsName">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Email</label>
+                            <input type="email" class="form-control" id="settingsEmail" disabled>
+                        </div>
+                        <button class="btn btn-accent" id="saveProfileBtn"><i class="bi bi-check2"></i> Enregistrer</button>
+                    </div>
+                    <div class="settings-card">
+                        <h5><i class="bi bi-palette-fill text-accent"></i> Apparence</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+                            <label class="form-check-label" for="darkModeSwitch">Mode sombre</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="settings-card">
+                        <h5><i class="bi bi-sliders text-accent"></i> Préférences par défaut</h5>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Cuisine par défaut</label>
+                            <select id="prefCuisine" class="form-select"><option value="any">Toutes</option><option>Italienne</option><option>Mexicaine</option><option>Japonaise</option><option>Indienne</option><option>Française</option><option>Chinoise</option><option>Méditerranéenne</option><option>Thaïlandaise</option></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Régime par défaut</label>
+                            <select id="prefDiet" class="form-select"><option value="none">Aucun</option><option value="Vegetarian">Végétarien</option><option value="Vegan">Végane</option><option value="Gluten-Free">Sans gluten</option><option value="Keto">Keto</option></select>
+                        </div>
+                        <button class="btn btn-accent" id="savePrefsBtn"><i class="bi bi-check2"></i> Enregistrer</button>
+                    </div>
+                    <div class="settings-card danger-zone">
+                        <h5><i class="bi bi-exclamation-triangle-fill"></i> Zone de danger</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-danger-outline" id="deleteAllRecipesBtn"><i class="bi bi-trash3"></i> Supprimer toutes les recettes</button>
+                            <button class="btn btn-danger-outline" id="deleteAccountBtn"><i class="bi bi-person-x"></i> Supprimer le compte</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ====== MOBILE BOTTOM NAV ====== -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <button class="bottom-nav-link active" data-view="dashboard"><i class="bi bi-grid-1x2-fill"></i>Accueil</button>
+            <button class="bottom-nav-link" data-view="generate"><i class="bi bi-magic"></i>Créer</button>
+            <button class="bottom-nav-link" data-view="recipes"><i class="bi bi-book"></i>Recettes</button>
+            <button class="bottom-nav-link" data-view="history"><i class="bi bi-clock-history"></i>Histo.</button>
+            <button class="bottom-nav-link" data-view="settings"><i class="bi bi-gear"></i>Param.</button>
+        </div>
+    </nav>
+
+    <!-- ====== COOKING MODE MODAL ====== -->
+    <div class="modal fade cooking-modal" id="cookingModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title"><i class="bi bi-fire"></i> Mode Cuisson</h5>
+                        <small class="text-muted" id="cookingTitle"></small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="cooking-body-layout">
+                        <div class="cooking-main">
+                            <div class="step-indicator" id="cookStepIndicator">Étape 1 sur 1</div>
+                            <div class="cooking-progress"><div class="progress-bar" id="cookProgressBar" style="width:0%"></div></div>
+                            <div class="cooking-step-display" id="cookStepDisplay">
+                                <div class="step-num-circle" id="cookStepNum">1</div>
+                                <p class="step-text" id="cookStepText">Texte d'instruction ici</p>
+                                <div class="step-timer" id="cookTimerWrap" style="display:none;">
+                                    <button class="timer-btn" id="timerStartBtn"><i class="bi bi-play-fill"></i></button>
+                                    <span class="timer-display" id="timerDisplay">00:00</span>
+                                    <button class="timer-btn" id="timerResetBtn"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cooking-sidebar-panel">
+                            <h6><i class="bi bi-basket2-fill"></i> Liste des Ingrédients</h6>
+                            <div id="cookIngredientsList"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary" id="cookPrevBtn"><i class="bi bi-chevron-left"></i> Précédent</button>
+                    <button class="btn btn-accent" id="cookNextBtn">Suivant <i class="bi bi-chevron-right"></i></button>
+                    <button class="btn btn-accent d-none" id="cookDoneBtn"><i class="bi bi-check2-circle"></i> Cuisson Terminée</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== RECIPE DETAIL MODAL ====== -->
+    <div class="modal fade" id="recipeDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-xl);">
+                <div class="modal-header border-0 pb-0">
+                    <ul class="nav nav-tabs" id="detailTabs" role="tablist">
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabOverview">Aperçu</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabIngredients">Ingrédients</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabInstructions">Instructions</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabNutrition">Nutrition</button></li>
+                    </ul>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body tab-content">
+                    <div class="tab-pane fade show active" id="tabOverview"></div>
+                    <div class="tab-pane fade" id="tabIngredients"></div>
+                    <div class="tab-pane fade" id="tabInstructions"></div>
+                    <div class="tab-pane fade" id="tabNutrition"></div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button class="btn btn-cook" id="detailCookBtn"><i class="bi bi-fire"></i> Commencer à cuisiner</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== DELETE CONFIRM MODAL ====== -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content" style="background:var(--surface);color:var(--text);border-radius:var(--radius-md);">
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size:2.5rem;"></i>
+                    <h5 class="mt-3 fw-bold">Supprimer la recette ?</h5>
+                    <p class="text-muted small">Cette action est irréversible.</p>
+                    <div class="d-flex gap-2 justify-content-center mt-3">
+                        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button class="btn btn-danger" id="confirmDeleteBtn">Supprimer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebaseConfig.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
